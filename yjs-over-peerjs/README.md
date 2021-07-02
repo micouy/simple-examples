@@ -1,4 +1,4 @@
-# Custom Y.js Provider through PeerJS
+# Y.js over PeerJS
 
 ![screenshot](screenshot.png)
 
