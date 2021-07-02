@@ -26,16 +26,18 @@ peer.on('open', (id) => {
     u("#client-id-text").html(`${id}`);
 });
 
+let displayMessage = (msg) => {
+    console.log("incomming data", msg);
+    u("#chat-list").prepend(`<li>peer: ${msg}</li>`);
+};
+
 // Connect to a peer by their ID.
 u("#connect-input").on('click', () => {
     let peerId = u("#peer-id-input").first().value;
     conn = peer.connect(peerId);
     u("#peer-id-text").html(`peer ID: <pre style="display: inline;">${peerId}</pre>.`);
 
-    conn.on('data', (msg) => {
-        console.log("incomming data", msg);
-        u("#chat-list").prepend(`<li>peer: ${msg}</li>`);
-    });
+    conn.on('data', displayMessage);
 });
 
 // Accept a connection.
@@ -43,19 +45,7 @@ peer.on('connection', (incomming) => {
     conn = incomming;
     u("#peer-id-text").html(`peer ID: <pre style="display: inline;">${conn.peer}</pre>.`);
 
-    // Log incomming messages.
-    conn.on('data', (msg) => {
-        console.log("incomming data", msg);
-        u("#chat-list").prepend(`<li>peer: ${msg}</li>`);
-    });
-});
-
-// Send message on Enter.
-u("#msg-input").on('keyup', (e) => {
-    if (e.keyCode === 13) {
-        e.preventDefault();
-        u("#send-input").trigger('click');
-    }
+    conn.on('data', displayMessage);
 });
 
 // Send message on click.

@@ -28,15 +28,20 @@ let myId;
 
 // Handle update.
 let onUpdate = (update) => {
-    // Apply the received update to the local ydoc.
-    Y.applyUpdate(ydoc, new Uint8Array(update));
+    // WARNING!
+    //
+    // Y.encodeStateAsUpdate() returns Uint8Array but the type of the
+    // message received by PeerJS is ArrayBuffer. It needs to be cast
+    // to the correct type before it is applied to the local state.
+    let updateArray = new Uint8Array(update);
+    Y.applyUpdate(ydoc, updateArray);
 
     // Display the local state.
     displayState(ydoc.getArray('myarray'));
 };
 
+// Display chat state.
 let displayState = (yarray) => {
-    // Update chat.
     u("#chat-list").children().remove();
     u("#chat-list").append(msg => u(`<li>${msg.sender}: <b>${msg.text}</b></li>`), yarray.toArray());
 };
@@ -48,18 +53,15 @@ let displayPeerId = (peerId) => u("#peer-id-text").html(`peer ID: <pre style="di
 peer.on('open', (id) => {
     myId = id;
 
-    // Display own ID.
     displayOwnId(myId);
 });
 
 // Connect to a peer by their ID.
 u("#connect-input").on('click', () => {
-    // Get entered ID and connect to it.
     let peerId = u("#peer-id-input").first().value;
     conn = peer.connect(peerId);
     conn.on('data', onUpdate);
 
-    // Display peer's ID.
     displayPeerId(peerId);
 });
 
@@ -68,32 +70,19 @@ peer.on('connection', (incomming) => {
     conn = incomming;
     conn.on('data', onUpdate);
 
-    // Display peer's ID.
-    u("#peer-id-text").html(`peer ID: <pre style="display: inline;">${conn.peer}</pre>.`);
-});
-
-// Send message on Enter.
-u("#msg-input").on('keyup', (e) => {
-    if (e.keyCode === 13) {
-        e.preventDefault();
-        u("#send-input").trigger('click');
-    }
+    displayPeerId(conn.peer);
 });
 
 // Send message on button click.
 u("#send-input").on('click', () => {
-    // Get field's content.
     let text = u("#msg-input").first().value;
 
-    // Update the local state.
     let yarray = ydoc.getArray('myarray');
     yarray.insert(0, [{ sender: myId, text }])
 
-    // Encode and send update.
     let update = Y.encodeStateAsUpdate(ydoc);
     conn.send(update);
 
-    // Display local state.
     displayState(yarray);
 });
 </script>
