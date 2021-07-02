@@ -7,3 +7,4 @@ Feel free to improve the list! If possible, follow [`TEMPLATE.md`](/TEMPLATE.md)
 ## List
 
 * [Basic PeerJS / WebRTC chat](/peer-js-chat/)
+* [Custom Y.js Provider through PeerJS](/y-js-custom-provider/)

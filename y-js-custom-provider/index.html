@@ -1,0 +1,99 @@
+<!-- PeerJS -->
+<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+
+<!-- UmbrellaJS -->
+<script src="https://cdn.jsdelivr.net/npm/umbrellajs"></script>
+
+<!-- Connection -->
+<input type="text" id="peer-id-input">
+<button id="connect-input">connect</button>
+
+<!-- IDs -->
+<p id="client-id-text"></p>
+<p id="peer-id-text"></p>
+
+<!-- Chat -->
+<input type="text" id="msg-input">
+<button id="send-input">send</button>
+<ul id="chat-list"></ul>
+
+<!-- Main script -->
+<script type="module">
+import * as Y from 'https://esm.run/yjs';
+
+let ydoc = new Y.Doc();
+let peer = new Peer();
+let conn;
+let myId;
+
+// Handle update.
+let onUpdate = (update) => {
+    // Apply the received update to the local ydoc.
+    Y.applyUpdate(ydoc, new Uint8Array(update));
+
+    // Display the local state.
+    displayState(ydoc.getArray('myarray'));
+};
+
+let displayState = (yarray) => {
+    // Update chat.
+    u("#chat-list").children().remove();
+    u("#chat-list").append(msg => u(`<li>${msg.sender}: <b>${msg.text}</b></li>`), yarray.toArray());
+};
+
+let displayOwnId = (id) => u("#client-id-text").html(`<pre style="display: inline;">${id}</pre>`);
+let displayPeerId = (peerId) => u("#peer-id-text").html(`peer ID: <pre style="display: inline;">${peerId}</pre>.`);
+
+// Open.
+peer.on('open', (id) => {
+    myId = id;
+
+    // Display own ID.
+    displayOwnId(myId);
+});
+
+// Connect to a peer by their ID.
+u("#connect-input").on('click', () => {
+    // Get entered ID and connect to it.
+    let peerId = u("#peer-id-input").first().value;
+    conn = peer.connect(peerId);
+    conn.on('data', onUpdate);
+
+    // Display peer's ID.
+    displayPeerId(peerId);
+});
+
+// Accept a connection.
+peer.on('connection', (incomming) => {
+    conn = incomming;
+    conn.on('data', onUpdate);
+
+    // Display peer's ID.
+    u("#peer-id-text").html(`peer ID: <pre style="display: inline;">${conn.peer}</pre>.`);
+});
+
+// Send message on Enter.
+u("#msg-input").on('keyup', (e) => {
+    if (e.keyCode === 13) {
+        e.preventDefault();
+        u("#send-input").trigger('click');
+    }
+});
+
+// Send message on button click.
+u("#send-input").on('click', () => {
+    // Get field's content.
+    let text = u("#msg-input").first().value;
+
+    // Update the local state.
+    let yarray = ydoc.getArray('myarray');
+    yarray.insert(0, [{ sender: myId, text }])
+
+    // Encode and send update.
+    let update = Y.encodeStateAsUpdate(ydoc);
+    conn.send(update);
+
+    // Display local state.
+    displayState(yarray);
+});
+</script>
