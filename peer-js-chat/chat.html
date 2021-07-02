@@ -1,0 +1,67 @@
+<!-- PeerJS -->
+<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+
+<!-- Umbrella.js -->
+<script src="https://cdn.jsdelivr.net/npm/umbrellajs"></script>
+
+<!-- PeerJS connection -->
+<input type="text" id="peer-id-input">
+<button id="connect-input">connect</button>
+
+<!-- IDs -->
+<p id="client-id-text"></p>
+<p id="peer-id-text"></p>
+
+<!-- Chat -->
+<input type="text" id="msg-input">
+<button id="send-input">send</button>
+<ul id="chat-list"></ul>
+
+<script>
+let conn;
+let peer = new Peer();
+
+// Display own ID.
+peer.on('open', (id) => {
+    u("#client-id-text").html(`${id}`);
+});
+
+// Connect to a peer by their ID.
+u("#connect-input").on('click', () => {
+    let peerId = u("#peer-id-input").first().value;
+    conn = peer.connect(peerId);
+    u("#peer-id-text").html(`peer ID: <pre style="display: inline;">${peerId}</pre>.`);
+
+    conn.on('data', (msg) => {
+        console.log("incomming data", msg);
+        u("#chat-list").prepend(`<li>peer: ${msg}</li>`);
+    });
+});
+
+// Accept a connection.
+peer.on('connection', (incomming) => {
+    conn = incomming;
+    u("#peer-id-text").html(`peer ID: <pre style="display: inline;">${conn.peer}</pre>.`);
+
+    // Log incomming messages.
+    conn.on('data', (msg) => {
+        console.log("incomming data", msg);
+        u("#chat-list").prepend(`<li>peer: ${msg}</li>`);
+    });
+});
+
+// Send message on Enter.
+u("#msg-input").on('keyup', (e) => {
+    if (e.keyCode === 13) {
+        e.preventDefault();
+        u("#send-input").trigger('click');
+    }
+});
+
+// Send message on click.
+u("#send-input").on('click', () => {
+    let msg = u("#msg-input").first().value;
+    conn.send(msg);
+    u("#chat-list").prepend(`<li>me: ${msg}</li>`);
+});
+</script>
