@@ -1,6 +1,8 @@
 # Simple Examples
 
-This collections is meant to complement examples provided by the maintainers of various technologies.
+This collections is complementary to examples provided by the maintainers of various technologies. Each example should be short, function as a single, complete unit and allow the user to make a working prototype as quickly as possible.
+
+Feel free to improve the list! If possible, follow [`TEMPLATE.md`](/TEMPLATE.md).
 
 ## List
 
