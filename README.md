@@ -8,3 +8,4 @@ Feel free to improve the list! If possible, follow [`TEMPLATE.md`](/TEMPLATE.md)
 
 * [Basic PeerJS / WebRTC chat](/peerjs-chat/)
 * [Y.js over PeerJS](/yjs-over-peerjs/)
+* [Basic `legion` ECS example](/legion-basic/)

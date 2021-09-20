@@ -1,4 +1,4 @@
-# Basic `legion` example
+# Basic `legion` ECS example
 
 **Technology**: [`legion` (`0.4.0`)](https://github.com/amethyst/legion/tree/v0.4.0), [Rust (`1.55.0-nightly`)](https://www.rust-lang.org/) 
 
